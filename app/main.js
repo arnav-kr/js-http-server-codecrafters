@@ -13,7 +13,7 @@ const server = net.createServer((socket) => {
     let headers = new Headers(rawHeaders);
     let UA = headers.get("User-Agent");
 
-    if (path == "/") socket.write("HTTP/1.1 200 OK\r\n\r\n");
+    if (path == "/") return socket.write("HTTP/1.1 200 OK\r\n\r\n");
 
     let splitted = path.split("/");
 
@@ -28,9 +28,10 @@ const server = net.createServer((socket) => {
           });
           socket.write("HTTP/1.1 200 OK\r\n" + headers.toString() + "\r\n\r\n" + chunk);
         });
+        return;
       }
       else {
-        socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+        return socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
       }
     }
 
@@ -39,16 +40,18 @@ const server = net.createServer((socket) => {
         "Content-Type": "text/plain",
         "Content-Length": UA.length,
       });
-      socket.write("HTTP/1.1 200 OK\r\n" + responeHeaders.toString() + "\r\n\r\n" + UA);
+      return socket.write("HTTP/1.1 200 OK\r\n" + responeHeaders.toString() + "\r\n\r\n" + UA);
     }
     if (splitted[1] == "echo") {
-      if(!splitted[2]) return socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+      if (!splitted[2]) return socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
       let responeHeaders = new Headers({
         "Content-Type": "text/plain",
         "Content-Length": splitted[2].length,
       });
-      socket.write("HTTP/1.1 200 OK\r\n" + responeHeaders.toString() + "\r\n\r\n" + splitted[2]);
+      return socket.write("HTTP/1.1 200 OK\r\n" + responeHeaders.toString() + "\r\n\r\n" + splitted[2]);
     }
+
+    socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
   });
   socket.on("close", () => {
     socket.end();
