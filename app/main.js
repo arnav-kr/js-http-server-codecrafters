@@ -19,6 +19,12 @@ const server = net.createServer((socket) => {
 
     if (splitted[1] == "files") {
       let fileName = splitted.at(-1);
+      if(method === "POST") {
+        let stream = fs.createWriteStream(dir + fileName);
+        stream.write(body);
+        stream.end();
+        return socket.write("HTTP/1.1 201 Created\r\n\r\n");
+      }
       if (fs.existsSync(dir + fileName)) {
         let stream = fs.createReadStream(dir + fileName);
         stream.on("data", (chunk) => {
