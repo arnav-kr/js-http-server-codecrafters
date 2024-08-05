@@ -60,16 +60,13 @@ const server = net.createServer((socket) => {
         encoding = headers.get("Accept-Encoding").split(", ").find((encoding) => validEncodings.includes(encoding));
       }
       if (encoding === "gzip") {
-        zlib.gzip(splitted[2], (_, buffer) => {
-          console.log(buffer.length);
-          responseHeaders = new Headers({
-            "Content-Type": "text/plain",
-            "Content-Length": buffer.length,
-            "Content-Encoding": "gzip",
-          });
-          return socket.write("HTTP/1.1 200 OK\r\n" + responseHeaders.toString() + "\r\n\r\n" + buffer.toString("hex"));
+        let encoded = zlib.gzipSync(splitted[2]);
+        responseHeaders = new Headers({
+          "Content-Type": "text/plain",
+          "Content-Length": encoded.length,
+          "Content-Encoding": "gzip",
         });
-        return;
+        return socket.write("HTTP/1.1 200 OK\r\n" + responseHeaders.toString() + "\r\n\r\n" + encoded);
       }
 
       return socket.write("HTTP/1.1 200 OK\r\n" + responseHeaders.toString() + "\r\n\r\n" + splitted[2]);
