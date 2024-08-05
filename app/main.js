@@ -6,6 +6,7 @@ const server = net.createServer((socket) => {
     let [method, path, version] = requestLine.split(" ");
 
     let splitted = path.split("/");
+    if (path == "/") socket.write("HTTP/1.1 200 OK\r\n\r\nHello World!");
     if (splitted[1] == "echo") {
       let responeHeaders = new Headers({
         "Content-Type": "text/plain",
