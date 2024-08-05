@@ -59,10 +59,10 @@ const server = net.createServer((socket) => {
       let validEncodings = ["gzip"]
       if (headers.has("Accept-Encoding")) {
         encoding = headers.get("Accept-Encoding").split(", ").find((encoding) => validEncodings.includes(encoding));
-        if (encoding) responseHeaders.set("Content-Encoding", encoding);
       }
       if(encoding === "gzip") {
         zlib.gzip(splitted[2], (_, buffer) => {
+          console.log(buffer.length);
           responseHeaders = new Headers({
             "Content-Type": "text/plain",
             "Content-Length": buffer.length,
@@ -70,6 +70,7 @@ const server = net.createServer((socket) => {
           });
           return socket.write("HTTP/1.1 200 OK\r\n" + responseHeaders.toString() + "\r\n\r\n" + buffer);
         });
+        return;
       }
 
       return socket.write("HTTP/1.1 200 OK\r\n" + responseHeaders.toString() + "\r\n\r\n" + splitted[2]);
