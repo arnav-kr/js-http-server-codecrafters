@@ -1,6 +1,7 @@
 const net = require("net");
 const fs = require("fs");
-let dir = process.argv[2];
+let dir = process.argv[3];
+console.log(dir)
 
 const server = net.createServer((socket) => {
   socket.on("data", (data) => {
