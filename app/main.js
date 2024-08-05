@@ -1,4 +1,5 @@
 const net = require("net");
+const fs = require("fs");
 
 const server = net.createServer((socket) => {
   socket.on("data", (data) => {
@@ -10,8 +11,27 @@ const server = net.createServer((socket) => {
     let headers = new Headers(rawHeaders);
     let UA = headers.get("User-Agent");
 
-    let splitted = path.split("/");
     if (path == "/") socket.write("HTTP/1.1 200 OK\r\n\r\n");
+
+    let splitted = path.split("/");
+
+    if (splitted[1] == "files") {
+      let fileName = splitted.at(-1);
+      if (fs.existsSync("/tmp/" + fileName)) {
+        let stream = fs.createReadStream("/tmp/" + fileName);
+        stream.on("data", (chunk) => {
+          let headers = new Headers({
+            "Content-Type": "application/octet-stream",
+            "Content-Length": chunk.length,
+          });
+          socket.write("HTTP/1.1 200 OK\r\n" + headers.toString() + "\r\n\r\n" + chunk);
+        });
+      }
+      else {
+        socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+      }
+    }
+
     if (splitted[1] == "user-agent") {
       let responeHeaders = new Headers({
         "Content-Type": "text/plain",
@@ -25,8 +45,6 @@ const server = net.createServer((socket) => {
         "Content-Length": splitted[2].length,
       });
       socket.write("HTTP/1.1 200 OK\r\n" + responeHeaders.toString() + "\r\n\r\n" + splitted[2]);
-    } else {
-      socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
     }
   });
   socket.on("close", () => {
@@ -50,7 +68,6 @@ class Headers {
     return Object.keys(this.headers).map((name) => `${name}: ${this.headers[name]}`).join("\r\n");
   }
   _parseRawHeaders(rawHeaders) {
-    console.log(rawHeaders)
     let headers = {};
     rawHeaders.split("\r\n").forEach((header) => {
       let [name, value] = header.split(": ");
