@@ -2,11 +2,23 @@ const net = require("net");
 
 const server = net.createServer((socket) => {
   socket.on("data", (data) => {
-    let [requestLine, rawHeaders, body] = data.toString().split("\r\n\r\n");
+    let [requestLine, ...rest] = data.toString().split("\r\n");
+    let rawHeaders = rest.slice(0, rest.length - 2).join("\r\n");
+    let body = rest[rest.length - 1];
     let [method, path, version] = requestLine.split(" ");
+
+    let headers = new Headers(rawHeaders);
+    let UA = headers.get("User-Agent");
 
     let splitted = path.split("/");
     if (path == "/") socket.write("HTTP/1.1 200 OK\r\n\r\n");
+    if (splitted[1] == "user-agent") {
+      let responeHeaders = new Headers({
+        "Content-Type": "text/plain",
+        "Content-Length": UA.length,
+      });
+      socket.write("HTTP/1.1 200 OK\r\n" + responeHeaders.toString() + "\r\n\r\n" + UA);
+    }
     if (splitted[1] == "echo") {
       let responeHeaders = new Headers({
         "Content-Type": "text/plain",
@@ -38,6 +50,7 @@ class Headers {
     return Object.keys(this.headers).map((name) => `${name}: ${this.headers[name]}`).join("\r\n");
   }
   _parseRawHeaders(rawHeaders) {
+    console.log(rawHeaders)
     let headers = {};
     rawHeaders.split("\r\n").forEach((header) => {
       let [name, value] = header.split(": ");
