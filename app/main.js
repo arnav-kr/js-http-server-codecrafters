@@ -1,6 +1,6 @@
 const net = require("net");
 const fs = require("fs");
-let dir = process.argv[3] ?? "./";
+let dir = process.argv[3];
 console.log(dir)
 
 const server = net.createServer((socket) => {
@@ -42,6 +42,7 @@ const server = net.createServer((socket) => {
       socket.write("HTTP/1.1 200 OK\r\n" + responeHeaders.toString() + "\r\n\r\n" + UA);
     }
     if (splitted[1] == "echo") {
+      if(!splitted[2]) return socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
       let responeHeaders = new Headers({
         "Content-Type": "text/plain",
         "Content-Length": splitted[2].length,
