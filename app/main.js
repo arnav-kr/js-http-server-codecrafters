@@ -2,7 +2,6 @@ const net = require("net");
 const fs = require("fs");
 const zlib = require("zlib");
 let dir = process.argv[3];
-console.log(dir)
 
 const server = net.createServer((socket) => {
   socket.on("data", (data) => {
@@ -60,7 +59,7 @@ const server = net.createServer((socket) => {
       if (headers.has("Accept-Encoding")) {
         encoding = headers.get("Accept-Encoding").split(", ").find((encoding) => validEncodings.includes(encoding));
       }
-      if(encoding === "gzip") {
+      if (encoding === "gzip") {
         zlib.gzip(splitted[2], (_, buffer) => {
           console.log(buffer.length);
           responseHeaders = new Headers({
@@ -68,7 +67,7 @@ const server = net.createServer((socket) => {
             "Content-Length": buffer.length,
             "Content-Encoding": "gzip",
           });
-          return socket.write("HTTP/1.1 200 OK\r\n" + responseHeaders.toString() + "\r\n\r\n" + buffer);
+          return socket.write("HTTP/1.1 200 OK\r\n" + responseHeaders.toString() + "\r\n\r\n" + buffer.toString());
         });
         return;
       }
