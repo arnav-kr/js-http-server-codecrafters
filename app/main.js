@@ -63,7 +63,11 @@ const server = net.createServer((socket) => {
       }
       if(encoding === "gzip") {
         zlib.gzip(splitted[2], (_, buffer) => {
-          responseHeaders.set("Content-Length", buffer.length);
+          responseHeaders = new Headers({
+            "Content-Type": "text/plain",
+            "Content-Length": buffer.length,
+            "Content-Encoding": "gzip",
+          });
           return socket.write("HTTP/1.1 200 OK\r\n" + responseHeaders.toString() + "\r\n\r\n" + buffer);
         });
       }
