@@ -1,5 +1,6 @@
 const net = require("net");
 const fs = require("fs");
+let dir = process.argv[2];
 
 const server = net.createServer((socket) => {
   socket.on("data", (data) => {
@@ -17,8 +18,8 @@ const server = net.createServer((socket) => {
 
     if (splitted[1] == "files") {
       let fileName = splitted.at(-1);
-      if (fs.existsSync("/tmp/" + fileName)) {
-        let stream = fs.createReadStream("/tmp/" + fileName);
+      if (fs.existsSync(dir + fileName)) {
+        let stream = fs.createReadStream(dir + fileName);
         stream.on("data", (chunk) => {
           let headers = new Headers({
             "Content-Type": "application/octet-stream",
