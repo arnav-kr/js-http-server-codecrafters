@@ -50,12 +50,13 @@ const server = net.createServer((socket) => {
     }
     if (splitted[1] == "echo") {
       if (!splitted[2]) return socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
-      let encoding = headers.get("Accept-Encoding");
+      let validEncodings = ["gzip"]
+      let encoding = headers.get("Accept-Encoding").split(", ").find((encoding) => validEncodings.includes(encoding));
       let responseHeaders = new Headers({
         "Content-Type": "text/plain",
         "Content-Length": splitted[2].length,
       });
-      if (encoding === "gzip") responseHeaders.set("Content-Encoding", "gzip");
+      if (encoding) responseHeaders.set("Content-Encoding", encoding);
       return socket.write("HTTP/1.1 200 OK\r\n" + responseHeaders.toString() + "\r\n\r\n" + splitted[2]);
     }
 
