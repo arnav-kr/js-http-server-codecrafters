@@ -67,7 +67,7 @@ const server = net.createServer((socket) => {
             "Content-Length": buffer.length,
             "Content-Encoding": "gzip",
           });
-          return socket.write("HTTP/1.1 200 OK\r\n" + responseHeaders.toString() + "\r\n\r\n" + buffer.toString());
+          return socket.write("HTTP/1.1 200 OK\r\n" + responseHeaders.toString() + "\r\n\r\n" + buffer.toString("hex"));
         });
         return;
       }
